@@ -1,0 +1,5 @@
+{
+  "name": "Sri Lankan Meal Planner & Grocery Tracker",
+  "description": "A comprehensive meal planning application for Sri Lankan households. Plan weekly meals, calculate ingredient quantities for 5 people (3 adults, 2 kids) using AI, track grocery costs, and export reports to Excel.",
+  "requestFramePermissions": []
+}
