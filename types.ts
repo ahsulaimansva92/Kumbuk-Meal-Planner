@@ -9,6 +9,17 @@ export enum DayOfWeek {
   Sunday = 'Sunday'
 }
 
+export interface MealIngredient {
+  name: string;
+  amount: number;
+  unit: string;
+}
+
+export interface MealItem {
+  name: string;
+  ingredients: MealIngredient[];
+}
+
 export interface LunchPlan {
   main: string;
   veg1: string;
@@ -18,7 +29,7 @@ export interface LunchPlan {
 
 export interface DayPlan {
   day: DayOfWeek;
-  breakfast: string[];
+  breakfast: string;
   lunch: LunchPlan;
   dinner: string;
 }
@@ -33,6 +44,23 @@ export interface Ingredient {
 export interface ShoppingItem extends Ingredient {
   id: string;
   actualCost?: number;
+}
+
+export interface SavedShoppingList {
+  id: string;
+  name: string;
+  date: string;
+  period: string;
+  items: ShoppingItem[];
+}
+
+export interface MealOptions {
+  lunchMains: MealItem[];
+  lunchVeg1: MealItem[];
+  lunchVeg2: MealItem[];
+  lunchMeat: MealItem[];
+  breakfastCombos: MealItem[];
+  dinnerCombos: MealItem[];
 }
 
 export interface WeeklyPlan {
