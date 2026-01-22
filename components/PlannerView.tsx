@@ -14,7 +14,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ plan, options, onUpdate }) =>
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
           <i className="fa-solid fa-calendar-week text-indigo-500"></i>
-          Weekly Meal Strategy
+          Weekly menu
         </h2>
         <div className="hidden md:flex gap-2 text-xs text-slate-500">
           <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-400"></div> Pre-assigned</span>

@@ -13,11 +13,13 @@ export interface MealIngredient {
   name: string;
   amount: number;
   unit: string;
+  fetchingBasis?: 'AI' | 'Manual';
 }
 
 export interface MealItem {
   name: string;
   ingredients: MealIngredient[];
+  fetchingBasis?: 'AI' | 'Manual';
 }
 
 export interface LunchPlan {

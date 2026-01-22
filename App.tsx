@@ -113,13 +113,13 @@ const App: React.FC = () => {
               onClick={() => setActiveTab('meals')}
               className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'meals' ? 'bg-white text-indigo-700 shadow-sm' : 'hover:bg-white/10'}`}
             >
-              Master Library
+              Menu's & Recipes
             </button>
             <button 
               onClick={() => setActiveTab('planner')}
               className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'planner' ? 'bg-white text-indigo-700 shadow-sm' : 'hover:bg-white/10'}`}
             >
-              Weekly Planner
+              Weekly menu
             </button>
             <button 
               onClick={() => setActiveTab('shopping')}

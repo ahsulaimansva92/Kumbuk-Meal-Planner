@@ -3,7 +3,8 @@ import { DayOfWeek, MealOptions, MealItem } from './types';
 
 const createItem = (name: string, ingredients: { name: string, amount: number, unit: string }[] = []): MealItem => ({
   name,
-  ingredients
+  ingredients,
+  fetchingBasis: 'AI'
 });
 
 export const INITIAL_MEAL_OPTIONS: MealOptions = {
