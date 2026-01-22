@@ -16,50 +16,22 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load Initial Data
   useEffect(() => {
     const savedPlan = localStorage.getItem('mealPlan');
     if (savedPlan) setWeeklyPlan(JSON.parse(savedPlan));
-    
     const savedOptions = localStorage.getItem('mealOptions');
     if (savedOptions) setMealOptions(JSON.parse(savedOptions));
-
     const savedItems = localStorage.getItem('shoppingItems');
     if (savedItems) setShoppingItems(JSON.parse(savedItems));
-
     const archivedLists = localStorage.getItem('savedShoppingLists');
     if (archivedLists) setSavedLists(JSON.parse(archivedLists));
-    
     setIsInitialized(true);
   }, []);
 
-  // Persist Plan changes
-  useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem('mealPlan', JSON.stringify(weeklyPlan));
-    }
-  }, [weeklyPlan, isInitialized]);
-
-  // Persist Options/Library changes
-  useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem('mealOptions', JSON.stringify(mealOptions));
-    }
-  }, [mealOptions, isInitialized]);
-
-  // Persist Shopping List changes
-  useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem('shoppingItems', JSON.stringify(shoppingItems));
-    }
-  }, [shoppingItems, isInitialized]);
-
-  // Persist Saved Lists changes
-  useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem('savedShoppingLists', JSON.stringify(savedLists));
-    }
-  }, [savedLists, isInitialized]);
+  useEffect(() => { if (isInitialized) localStorage.setItem('mealPlan', JSON.stringify(weeklyPlan)); }, [weeklyPlan, isInitialized]);
+  useEffect(() => { if (isInitialized) localStorage.setItem('mealOptions', JSON.stringify(mealOptions)); }, [mealOptions, isInitialized]);
+  useEffect(() => { if (isInitialized) localStorage.setItem('shoppingItems', JSON.stringify(shoppingItems)); }, [shoppingItems, isInitialized]);
+  useEffect(() => { if (isInitialized) localStorage.setItem('savedShoppingLists', JSON.stringify(savedLists)); }, [savedLists, isInitialized]);
 
   const handlePlanChange = (day: DayOfWeek, field: string, value: string) => {
     setWeeklyPlan(prev => ({
@@ -82,21 +54,13 @@ const App: React.FC = () => {
     });
   };
 
-  const updateShoppingItems = (items: ShoppingItem[]) => {
-    setShoppingItems(items);
-  };
-
-  const handleSaveList = (newList: SavedShoppingList) => {
-    setSavedLists(prev => [newList, ...prev]);
-  };
-
-  const handleDeleteSavedList = (id: string) => {
-    setSavedLists(prev => prev.filter(l => l.id !== id));
-  };
+  const updateShoppingItems = (items: ShoppingItem[]) => setShoppingItems(items);
+  const handleSaveList = (newList: SavedShoppingList) => setSavedLists(prev => [newList, ...prev]);
+  const handleDeleteSavedList = (id: string) => setSavedLists(prev => prev.filter(l => l.id !== id));
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      {/* Header */}
+      {/* Professional Header */}
       <header className="bg-indigo-700 text-white shadow-lg py-6 px-4 md:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -104,8 +68,8 @@ const App: React.FC = () => {
               <i className="fa-solid fa-utensils text-2xl"></i>
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Kumbuk Meal Planner</h1>
-              <p className="text-indigo-100 text-sm">3 Adults, 2 Kids • Weekly Household Nutrition</p>
+              <h1 className="text-2xl font-bold tracking-tight text-white">Kumbuk Kitchen</h1>
+              <p className="text-indigo-100 text-sm">3 Adults, 2 Kids • Household Management</p>
             </div>
           </div>
           <nav className="flex bg-white/10 p-1 rounded-xl overflow-x-auto">
@@ -141,49 +105,25 @@ const App: React.FC = () => {
       <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8">
         {!isInitialized ? (
           <div className="flex flex-col items-center justify-center py-24 text-slate-400">
-            <i className="fa-solid fa-spinner animate-spin text-4xl mb-4"></i>
-            <p className="font-medium">Initializing Kitchen Library...</p>
+            <i className="fa-solid fa-spinner animate-spin text-4xl mb-4 text-indigo-500"></i>
+            <p className="font-medium uppercase tracking-widest text-xs">Initializing Kitchen Data...</p>
           </div>
         ) : (
-          <>
-            {activeTab === 'meals' && (
-              <AllMealsView 
-                options={mealOptions} 
-                onOptionsUpdate={handleOptionsUpdate} 
-              />
-            )}
-            {activeTab === 'planner' && (
-              <PlannerView 
-                plan={weeklyPlan} 
-                options={mealOptions}
-                onUpdate={handlePlanChange} 
-              />
-            )}
+          <div className="animate-fadeIn">
+            {activeTab === 'meals' && <AllMealsView options={mealOptions} onOptionsUpdate={handleOptionsUpdate} />}
+            {activeTab === 'planner' && <PlannerView plan={weeklyPlan} options={mealOptions} onUpdate={handlePlanChange} />}
             {activeTab === 'shopping' && (
               <ShoppingListView 
-                plan={weeklyPlan} 
-                options={mealOptions}
-                items={shoppingItems} 
-                onItemsUpdate={updateShoppingItems} 
-                loading={isLoading}
-                setLoading={setIsLoading}
-                savedLists={savedLists}
-                onSaveList={handleSaveList}
-                onDeleteSavedList={handleDeleteSavedList}
+                plan={weeklyPlan} options={mealOptions} items={shoppingItems} onItemsUpdate={updateShoppingItems} 
+                loading={isLoading} setLoading={setIsLoading} savedLists={savedLists} onSaveList={handleSaveList} onDeleteSavedList={handleDeleteSavedList}
               />
             )}
-            {activeTab === 'cost' && (
-              <CostTrackerView 
-                items={shoppingItems} 
-                onItemsUpdate={updateShoppingItems} 
-              />
-            )}
-          </>
+            {activeTab === 'cost' && <CostTrackerView items={shoppingItems} onItemsUpdate={updateShoppingItems} />}
+          </div>
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-8 px-4 text-center text-sm">
+      <footer className="bg-slate-900 text-slate-400 py-8 px-4 text-center text-sm mt-auto">
         <p>© 2024 Kumbuk Kitchen Management System. Built for Sri Lankan Families.</p>
       </footer>
     </div>
