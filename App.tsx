@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { DayOfWeek, DayPlan, ShoppingItem, MealOptions, SavedShoppingList } from './types';
-import { INITIAL_WEEKLY_PLAN, INITIAL_MEAL_OPTIONS } from './constants';
+import { DayPlan, ShoppingItem, MealOptions, SavedShoppingList, DatePlanMap } from './types';
+import { INITIAL_MEAL_OPTIONS } from './constants';
 import PlannerView from './components/PlannerView';
 import ShoppingListView from './components/ShoppingListView';
 import CostTrackerView from './components/CostTrackerView';
@@ -9,7 +9,7 @@ import AllMealsView from './components/AllMealsView';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'planner' | 'shopping' | 'cost' | 'meals'>('meals');
-  const [weeklyPlan, setWeeklyPlan] = useState<Record<string, DayPlan>>(INITIAL_WEEKLY_PLAN);
+  const [datePlans, setDatePlans] = useState<DatePlanMap>({});
   const [mealOptions, setMealOptions] = useState<MealOptions>(INITIAL_MEAL_OPTIONS);
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
   const [savedLists, setSavedLists] = useState<SavedShoppingList[]>([]);
@@ -17,34 +17,52 @@ const App: React.FC = () => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const savedPlan = localStorage.getItem('mealPlan');
-    if (savedPlan) setWeeklyPlan(JSON.parse(savedPlan));
+    const savedPlans = localStorage.getItem('datePlans');
+    if (savedPlans) setDatePlans(JSON.parse(savedPlans));
+    
     const savedOptions = localStorage.getItem('mealOptions');
     if (savedOptions) setMealOptions(JSON.parse(savedOptions));
+
     const savedItems = localStorage.getItem('shoppingItems');
     if (savedItems) setShoppingItems(JSON.parse(savedItems));
+
     const archivedLists = localStorage.getItem('savedShoppingLists');
     if (archivedLists) setSavedLists(JSON.parse(archivedLists));
+    
     setIsInitialized(true);
   }, []);
 
-  useEffect(() => { if (isInitialized) localStorage.setItem('mealPlan', JSON.stringify(weeklyPlan)); }, [weeklyPlan, isInitialized]);
+  useEffect(() => { if (isInitialized) localStorage.setItem('datePlans', JSON.stringify(datePlans)); }, [datePlans, isInitialized]);
   useEffect(() => { if (isInitialized) localStorage.setItem('mealOptions', JSON.stringify(mealOptions)); }, [mealOptions, isInitialized]);
   useEffect(() => { if (isInitialized) localStorage.setItem('shoppingItems', JSON.stringify(shoppingItems)); }, [shoppingItems, isInitialized]);
   useEffect(() => { if (isInitialized) localStorage.setItem('savedShoppingLists', JSON.stringify(savedLists)); }, [savedLists, isInitialized]);
 
-  const handlePlanChange = (day: DayOfWeek, field: string, value: string) => {
-    setWeeklyPlan(prev => ({
-      ...prev,
-      [day]: {
-        ...prev[day],
-        breakfast: field === 'breakfast' ? value : prev[day].breakfast,
-        dinner: field === 'dinner' ? value : prev[day].dinner,
-        lunch: field.startsWith('lunch_') 
-          ? { ...prev[day].lunch, [field.replace('lunch_', '')]: value }
-          : prev[day].lunch
-      }
-    }));
+  const handlePlanChange = (date: string, field: string, value: string) => {
+    setDatePlans(prev => {
+      const existing = prev[date] || {
+        date,
+        breakfast: mealOptions.breakfastCombos[0]?.name || '',
+        lunch: {
+          main: mealOptions.lunchMains[0]?.name || '',
+          veg1: mealOptions.lunchVeg1[0]?.name || '',
+          veg2: mealOptions.lunchVeg2[0]?.name || '',
+          meat: mealOptions.lunchMeat[0]?.name || '',
+        },
+        dinner: mealOptions.dinnerCombos[0]?.name || ''
+      };
+
+      return {
+        ...prev,
+        [date]: {
+          ...existing,
+          breakfast: field === 'breakfast' ? value : existing.breakfast,
+          dinner: field === 'dinner' ? value : existing.dinner,
+          lunch: field.startsWith('lunch_') 
+            ? { ...existing.lunch, [field.replace('lunch_', '')]: value }
+            : existing.lunch
+        }
+      };
+    });
   };
 
   const handleOptionsUpdate = (newOptions: MealOptions | ((prev: MealOptions) => MealOptions)) => {
@@ -54,13 +72,21 @@ const App: React.FC = () => {
     });
   };
 
-  const updateShoppingItems = (items: ShoppingItem[]) => setShoppingItems(items);
-  const handleSaveList = (newList: SavedShoppingList) => setSavedLists(prev => [newList, ...prev]);
-  const handleDeleteSavedList = (id: string) => setSavedLists(prev => prev.filter(l => l.id !== id));
+  const updateShoppingItems = (items: ShoppingItem[]) => {
+    setShoppingItems(items);
+    setActiveTab('shopping');
+  };
+
+  const handleSaveList = (newList: SavedShoppingList) => {
+    setSavedLists(prev => [newList, ...prev]);
+  };
+
+  const handleDeleteSavedList = (id: string) => {
+    setSavedLists(prev => prev.filter(l => l.id !== id));
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      {/* Professional Header */}
       <header className="bg-indigo-700 text-white shadow-lg py-6 px-4 md:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -101,7 +127,6 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8">
         {!isInitialized ? (
           <div className="flex flex-col items-center justify-center py-24 text-slate-400">
@@ -111,14 +136,23 @@ const App: React.FC = () => {
         ) : (
           <div className="animate-fadeIn">
             {activeTab === 'meals' && <AllMealsView options={mealOptions} onOptionsUpdate={handleOptionsUpdate} />}
-            {activeTab === 'planner' && <PlannerView plan={weeklyPlan} options={mealOptions} onUpdate={handlePlanChange} />}
+            {activeTab === 'planner' && (
+              <PlannerView 
+                datePlans={datePlans} 
+                options={mealOptions} 
+                onUpdate={handlePlanChange}
+                onSyncGrocery={(items) => updateShoppingItems(items)}
+                setLoading={setIsLoading}
+                loading={isLoading}
+              />
+            )}
             {activeTab === 'shopping' && (
               <ShoppingListView 
-                plan={weeklyPlan} options={mealOptions} items={shoppingItems} onItemsUpdate={updateShoppingItems} 
+                plan={datePlans} options={mealOptions} items={shoppingItems} onItemsUpdate={(items) => setShoppingItems(items)} 
                 loading={isLoading} setLoading={setIsLoading} savedLists={savedLists} onSaveList={handleSaveList} onDeleteSavedList={handleDeleteSavedList}
               />
             )}
-            {activeTab === 'cost' && <CostTrackerView items={shoppingItems} onItemsUpdate={updateShoppingItems} />}
+            {activeTab === 'cost' && <CostTrackerView items={shoppingItems} onItemsUpdate={(items) => setShoppingItems(items)} />}
           </div>
         )}
       </main>

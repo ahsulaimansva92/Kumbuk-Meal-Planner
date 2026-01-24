@@ -87,14 +87,14 @@ export const generateShoppingList = async (plans: DayPlan[], mealOptions: MealOp
 
   const prompt = `
     ACT AS A HOUSEHOLD LOGISTICS EXPERT. 
-    Calculate a consolidated grocery list for a Sri Lankan household of 5 (3 Adults, 2 Kids) for the following meal plan.
+    Calculate a consolidated grocery list for a Sri Lankan household of 5 (3 Adults, 2 Kids) for the following planning period.
 
     MASTER MEAL LIBRARY (Truth Source for 1 meal / 5 people):
     ${masterDataStr}
 
-    MEAL PLAN FOR THE PERIOD:
+    MEAL PLAN FOR THE SELECTED DATES:
     ${plans.map(p => `
-      - ${p.day}: 
+      - Date: ${p.date}: 
         Breakfast: ${p.breakfast}
         Lunch: ${p.lunch.main}, ${p.lunch.veg1}, ${p.lunch.veg2}, ${p.lunch.meat}
         Dinner: ${p.dinner}

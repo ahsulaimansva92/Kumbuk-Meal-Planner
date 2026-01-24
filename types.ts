@@ -30,7 +30,7 @@ export interface LunchPlan {
 }
 
 export interface DayPlan {
-  day: DayOfWeek;
+  date: string; // YYYY-MM-DD
   breakfast: string;
   lunch: LunchPlan;
   dinner: string;
@@ -51,8 +51,8 @@ export interface ShoppingItem extends Ingredient {
 export interface SavedShoppingList {
   id: string;
   name: string;
-  date: string;
-  period: string;
+  date: string; // When the list was created
+  period: string; // The planned range (e.g. 2026-01-26 to 2026-01-28)
   items: ShoppingItem[];
 }
 
@@ -65,6 +65,6 @@ export interface MealOptions {
   dinnerCombos: MealItem[];
 }
 
-export interface WeeklyPlan {
-  [key: string]: DayPlan;
+export interface DatePlanMap {
+  [date: string]: DayPlan;
 }
